@@ -3294,27 +3294,6 @@
         },
         {
             "inputs": [],
-            "name": "withdrawPlatformA",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "inputs": [],
-            "name": "withdrawPlatformB",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "inputs": [],
-            "name": "withdrawPlatformC",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "inputs": [],
             "name": "withdrawThreshold",
             "outputs": [
                 {
@@ -3616,9 +3595,6 @@
 
     async function managerViewInfo() {
         let v4Balance = await storage.v4balance()
-        let platformA = await storage.platformA()
-        let platformB = await storage.platformB()
-        let platformC = await storage.platformC()
         let withdrawThreshold = await storage.withdrawThreshold()
         let upgradeToV1Amount = await storage.upgradeToV1Amount()
         let upgradeToV1Income = await storage.upgradeToV1Income()
@@ -3632,9 +3608,6 @@
         let depositToPlatform = await storage.depositToPlatform()
         let depositToStatic = await storage.depositToStatic()
         let depositToMarket = await storage.depositToMarket()
-        let platformToC = await storage.platformToC()
-        let platformToB = await storage.platformToB()
-        let platformToA = await storage.platformToA()
         let trashAddress = await storage.trashAddress()
         let staticToFrontSeventy = await storage.staticToFrontSeventy()
         let staticToInviation = await storage.staticToInviation()
@@ -3655,9 +3628,6 @@
         return {
             trashAddress,
             v4Balance,
-            platformA,
-            platformB,
-            platformC,
             withdrawThreshold,
             upgradeToV1Amount,
             upgradeToV1Income,
@@ -3847,44 +3817,11 @@
         getInfo();
         async function getInfo() {
             lodin = layer.open({ type: 2 });
-            let viewInfo = await managerViewInfo();
-            let a_balance = await platformABalance();
-            let b_balance = await platformBBalance();
-            let c_balance = await platformCBalance();
-            let t_balance = await trashBalance();
             let v4_balance = await v4Balance();
-            let level = await getLevel("1");
-            let v1Balance = await marketLevelOneToMember();
-            let v2Balance = await marketLevelTwoToMember();
-            let v3Balance = await marketLevelThreeToMember();
-            let _v4Balance = await marketLevelFourToMember();
             close(lodin);
             console.log(viewInfo);
-            $("#curr_upgrade").html(`<br/>升级到v1满足：${viewInfo.upgradeToV1Income / 10 ** 18} BNB<br/>
-            升级到v2邀请v1级别人数：${viewInfo.upgradeToV2Amount / 1} 人<br/>
-            升级到v2需要账户收入：${viewInfo.upgradeToV2Income / 10 ** 18} BNB<br/>
-            升级到v2邀请v3级别人数：${viewInfo.upgradeToV3Amount / 1} 人<br/>
-            升级到V3需要账户收入：${viewInfo.upgradeToV3Income / 10 ** 18} BNB<br/>
-            升级到v3邀请v4级别人数：${viewInfo.upgradeToV4Amount / 1} 人<br/>
-            升级到v4需要账户收入：${viewInfo.upgradeToV4Income / 10 ** 18} BNB`)
-            $("#marketLevelBalance").html(`V1会员：${v1Balance.length}人<br/>V2会员：${v2Balance.length}人<br/>V3会员：${v3Balance.length}人<br/>V4会员：${_v4Balance.length}人`);
-
-            $("#curr_threshold").text((viewInfo.curr_withdrawThreshold / 10 ** 18) + "BNB");
-            $("#curr_platformA").text(viewInfo.platformA);
-            $("#curr_platformB").text(viewInfo.platformB);
-            $("#curr_platformC").text(viewInfo.platformC);
-
-            $("#curr_trashAddress").text(viewInfo.trashAddress);
             $("#current_deposit_amount").text(level.value / 10 ** 18 + " BNB");
-
-            $("#_depositTo").text(`项目方：${viewInfo.depositToPlatform}%，静态：${viewInfo.depositToStatic}%，动态：${viewInfo.depositToMarket}%`)
-            $("#_platformTo").text(`项目方A：${viewInfo.platformToA / 10}/${viewInfo.depositToPlatform}，项目方B：${viewInfo.platformToB / 10}/${viewInfo.depositToPlatform}，项目方C：${viewInfo.platformToC / 10}/${viewInfo.depositToPlatform}`)
-            $("#_staticTo").text(`上70个点位：${viewInfo.staticToFrontSeventy}/${viewInfo.depositToStatic}，邀请人上下30个点位：${viewInfo.staticToInviation}/${viewInfo.depositToStatic}，入金用户：${viewInfo.staticToSelf}/${viewInfo.depositToStatic}`)
-            $("#_marketTo").text(`直推：${viewInfo.marketToDirect}/${viewInfo.depositToMarket}，间推：${viewInfo.marketToInter}/${viewInfo.depositToMarket}，管理会员：${viewInfo.marketToManager}/${viewInfo.depositToMarket}，全网V4：${viewInfo.marketToAllV4}/${viewInfo.depositToMarket}`)
-
-            // $("#_withdrawTo").text(`复投：${viewInfo.withdrawToRedeposit}%，上下30个点位：${viewInfo.withdrawToFrontAndBack}%，提现用户：${viewInfo.withdrawToSelf}%`)
-            $("#_manageLevel").text(`V1：${viewInfo.marketToV1}/${viewInfo.marketToManager}，V2：${viewInfo.marketToV2}/${viewInfo.marketToManager}，V3：${viewInfo.marketToV3}/${viewInfo.marketToManager}，V4：${viewInfo.marketToV4}/${viewInfo.marketToManager}`)
-            $("#balance").html(`项目方A：${a_balance / 10 ** 18} BNB<br/>项目方B：${b_balance / 10 ** 18} BNB<br/>项目方C：${c_balance / 10 ** 18 + (t_balance / 10 ** 18) * 0.83} BNB<br/>全网V4资金池：${v4_balance / 10 ** 18} BNB`);
+            $("#balance").html(`全网V4资金池：${v4_balance / 10 ** 18} BNB`);
         }
 
         function close(index) {
@@ -4058,25 +3995,6 @@
             msg("成功")
         }
 
-        async function f_resetPlatformRate() {
-            let _platformToC = $("#_platformToC").val();
-            let _platformToB = $("#_platformToB").val();
-            let _platformToA = $("#_platformToA").val();
-
-            if (_platformToC.trim() == "" ||
-                _platformToB.trim() == "" ||
-                _platformToA.trim() == ""
-            ) {
-                msg("请输入正确的内容")
-                return false;
-            }
-
-            msg("正在打包，等待合约响应");
-            let ret = await resetPlatformRate((_platformToC * 10).toString(), (_platformToB * 10).toString(), (_platformToA * 10).toString());
-            await ret.wait();
-            msg("成功")
-        }
-
         async function f_resetMarket() {
             let _marketToDirect = $("#_marketToDirect").val();
             let _marketToInter = $("#_marketToInter").val();
@@ -4186,7 +4104,8 @@
             msg("查询中...");
             let memberId = await memberIdOf(_viewLevel);
             let member = await memberOf(memberId);
-            $("#_queryLevel").text(`入金等级：${member._level == 0 ? "不存在该用户" : member._level}, 管理会员等级：${member._marketLevel == 0 ? "不存在该用户" : "V" + member._marketLevel}`);
+            console.log(member);
+            $("#_queryLevel").text(`入金等级：${member.level == 0 ? "不存在该用户" : member.level}, 管理会员等级：${member.marketLevel == 0 ? "不存在该用户" : "V" + member.marketLevel}`);
         }
 
         async function f_setTrashAddress() {
